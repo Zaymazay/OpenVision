@@ -11,6 +11,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Set up Xcode version
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: 'latest' # Автоматически выбирает самую продвинутую среду сборки с поддержкой новых стандартов Swift
+
       - name: Prepare Config
         run: |
           cp Config.xcconfig.example Config.xcconfig
