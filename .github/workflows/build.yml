@@ -13,11 +13,6 @@ jobs:
         with:
           ref: 'main'
 
-      - name: Remove broken Kokoro dependency
-        run: |
-          # Полностью вырезаем некорректную библиотеку из файла описания проекта Xcode
-          sed -i '' '/kokoro-ios/d' OpenVision.xcodeproj/project.pbxproj || true
-          
       - name: Create Config File
         run: |
           echo "DEVELOPMENT_TEAM = 1234567890" > Config.xcconfig
@@ -31,9 +26,12 @@ jobs:
             -configuration Release \
             -archivePath $PWD/build/OpenVision.xcarchive \
             -sdk iphoneos \
+            -clonedSourcePackagesDirPathCorrupted=YES \
+            IDECustomDerivedDataLocation=$PWD/build/DerivedData \
             CODE_SIGNING_ALLOWED=NO \
             CODE_SIGNING_REQUIRED=NO \
-            CODE_SIGN_IDENTITY=""
+            CODE_SIGN_IDENTITY="" \
+            OTHER_SWIFT_FLAGS="-Xfrontend -disable-implicit-concurrency-module-import"
             
       - name: Create Unsigned IPA
         run: |
