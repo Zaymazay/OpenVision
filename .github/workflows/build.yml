@@ -8,21 +8,16 @@ jobs:
     runs-on: macos-15
     
     steps:
-      - name: Checkout repository
+      - name: Checkout stable release
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # Скачиваем историю для отката
+          # Принудительно скачиваем только проверенный и рабочий релиз v0.1.0
+          ref: 'v0.1.0'
 
-      - name: Rollback to stable commit
+      - name: Create Config File
         run: |
-          # Откатываемся на версию до обновления библиотек до Swift 6.3
-          git checkout b7ce291 || git checkout $(git rev-list -n 1 --before="2026-03-01" main)
-
-      - name: Prepare Config
-        run: |
-          cp Config.xcconfig.example Config.xcconfig
-          sed -i '' 's/DEVELOPMENT_TEAM = .*/DEVELOPMENT_TEAM = 1234567890/' Config.xcconfig
-          sed -i '' 's/META_APP_ID = .*/META_APP_ID = 1234567890/' Config.xcconfig
+          echo "DEVELOPMENT_TEAM = 1234567890" > Config.xcconfig
+          echo "META_APP_ID = 1234567890" >> Config.xcconfig
 
       - name: Build and Archive
         run: |
@@ -45,6 +40,6 @@ jobs:
       - name: Upload IPA Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: OpenVision-Unsigned-IPA
+          name: OpenVision-Stable-IPA
           path: OpenVision.ipa
           retention-days: 5
