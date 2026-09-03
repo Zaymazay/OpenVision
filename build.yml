@@ -1,0 +1,23 @@
+name: Build IPA
+on:
+  workflow_dispatch:
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Xcode
+        run: sudo xcode-select -s /Applications/Xcode.app
+      - name: Build App
+        run: |
+          xcodebuild -project OpenVision.xcodeproj -scheme OpenVision -configuration Release -sdk iphoneos CODE_SIGNING_ALLOWED=NO OBJROOT=$PWD/build SYMROOT=$PWD/build
+      - name: Create IPA
+        run: |
+          mkdir -p Payload
+          mv build/Release-iphoneos/OpenVision.app Payload/
+          zip -r OpenVision.ipa Payload
+      - name: Upload IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: OpenVision-unsigned-ipa
+          path: OpenVision.ipa
