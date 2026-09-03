@@ -10,6 +10,13 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Скачиваем историю для отката
+
+      - name: Rollback to stable commit
+        run: |
+          # Откатываемся на версию до обновления библиотек до Swift 6.3
+          git checkout b7ce291 || git checkout $(git rev-list -n 1 --before="2026-03-01" main)
 
       - name: Prepare Config
         run: |
@@ -25,11 +32,9 @@ jobs:
             -configuration Release \
             -archivePath $PWD/build/OpenVision.xcarchive \
             -sdk iphoneos \
-            -disable-package-manifest-caching \
             CODE_SIGNING_ALLOWED=NO \
             CODE_SIGNING_REQUIRED=NO \
-            CODE_SIGN_IDENTITY="" \
-            SWIFT_VERSION=6.0
+            CODE_SIGN_IDENTITY=""
             
       - name: Create Unsigned IPA
         run: |
