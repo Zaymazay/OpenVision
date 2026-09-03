@@ -8,12 +8,16 @@ jobs:
     runs-on: macos-15
     
     steps:
-      - name: Checkout stable version 2.3.0
+      - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          # Скачиваем стабильный коммит версии 2.3.0 до того, как проект сломался в облаке
-          ref: 'v2.3.0'
-          fail-fast: false
+          ref: 'main'
+          fetch-depth: 0 # Скачиваем всю историю коммитов
+
+      - name: Reset to stable commit
+        run: |
+          # Откатываемся на стабильную версию приложения до внедрения ломающих Swift-пакетов
+          git reset --hard 2df39c15865239a5ec65a12001e3e7f415951a89 || git reset --hard HEAD~15
 
       - name: Create Config File
         run: |
@@ -41,6 +45,6 @@ jobs:
       - name: Upload IPA Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: OpenVision-v2.3.0-IPA
+          name: OpenVision-Stable-IPA
           path: OpenVision.ipa
           retention-days: 5
