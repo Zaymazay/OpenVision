@@ -5,22 +5,23 @@ on:
 
 jobs:
   build:
-    runs-on: macos-16 # Переключаемся на бета/следующую версию macOS с поддержкой Swift 6.3+
+    runs-on: macos-15
     
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-
-      - name: Set up Xcode version
-        uses: maxim-lobanov/setup-xcode@v1
         with:
-          xcode-version: 'latest' # Берем самый новый Xcode из доступных на этой ОС
+          ref: 'main' # Собираем основную ветку
 
-      - name: Prepare Config
+      - name: Initialize Submodules
         run: |
-          cp Config.xcconfig.example Config.xcconfig
-          sed -i '' 's/DEVELOPMENT_TEAM = .*/DEVELOPMENT_TEAM = 1234567890/' Config.xcconfig
-          sed -i '' 's/META_APP_ID = .*/META_APP_ID = 1234567890/' Config.xcconfig
+          git submodule update --init --recursive
+
+      - name: Create Config File
+        run: |
+          # Принудительно создаем чистый рабочий файл конфигурации проекта
+          echo "DEVELOPMENT_TEAM = 1234567890" > Config.xcconfig
+          echo "META_APP_ID = 1234567890" >> Config.xcconfig
 
       - name: Build and Archive
         run: |
@@ -33,7 +34,7 @@ jobs:
             CODE_SIGNING_ALLOWED=NO \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGN_IDENTITY=""
-
+            
       - name: Create Unsigned IPA
         run: |
           mkdir -p Payload
